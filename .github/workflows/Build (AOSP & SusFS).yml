@@ -21,7 +21,7 @@ jobs:
           DATE=`date +%Y%m%d`
           WORK_DIR=`git rev-parse --show-toplevel`
           OUT_DIR="$WORK_DIR/builds"
-          KSU_VER="v1.0.2"
+          KSU_VER="v1.0.3"
           BUILD_VARIANT="AOSP-SusFS"
           RELEASE_VERSION="KSU_$KSU_VER-$DATE"
 

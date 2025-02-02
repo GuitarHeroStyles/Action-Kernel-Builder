@@ -26,7 +26,7 @@ SRC_DIR="$WORK_DIR/android_kernel_samsung_sm7325"
 TC_DIR="$WORK_DIR/clang-toolchain"
 OUT_DIR="$WORK_DIR/builds"
 DATE=`date +%Y%m%d`
-KSU_VER="v1.0.2"
+KSU_VER="v1.0.3"
 RELEASE_VERSION="KSU_$KSU_VER-$DATE"
 JOBS=`nproc --all`
 
