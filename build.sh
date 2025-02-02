@@ -44,11 +44,11 @@ DETECT_BRANCH()
     if [[ "$branch_name" == "ksu" ]]; then
         echo "----------------------------------------------"
         echo "OneUI Branch Detected..."
-        BUILD_VARIANT="OneUI$EROFS_SUFFIX"
+        BUILD_VARIANT="OneUI${EROFS_SUFFIX}"
     elif [[ "$branch_name" == "ksu-susfs" ]]; then
         echo "----------------------------------------------"
         echo "OneUI SusFS Branch Detected..."
-        BUILD_VARIANT="OneUI-SusFS$EROFS_SUFFIX"
+        BUILD_VARIANT="OneUI-SusFS${EROFS_SUFFIX}"
     elif [[ "$branch_name" == "ksu-aosp" ]]; then
         echo "----------------------------------------------"
         echo "AOSP Branch Detected..."
