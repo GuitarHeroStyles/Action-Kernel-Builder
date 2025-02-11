@@ -1,4 +1,4 @@
-name: Build (AOSP & SusFS)
+name: Build
 
 on:
   workflow_dispatch:
@@ -11,6 +11,8 @@ jobs:
 
     strategy:
       fail-fast: false
+      matrix:
+        variant: [OneUI, AOSP]
 
     steps:
       - name: Checkout repo
@@ -18,11 +20,11 @@ jobs:
 
       - name: Set variables
         run: |
-          DATE=`date +%Y%m%d`
-          WORK_DIR=`git rev-parse --show-toplevel`
+          DATE="$(date +%Y%m%d)"
+          WORK_DIR="$(git rev-parse --show-toplevel)"
           OUT_DIR="$WORK_DIR/builds"
           KSU_VER="v1.0.3"
-          BUILD_VARIANT="AOSP-SusFS"
+          BUILD_VARIANT="${{ matrix.variant }}"
           RELEASE_VERSION="KSU_$KSU_VER-$DATE"
 
           echo "DATE=$DATE" >> $GITHUB_ENV
@@ -56,54 +58,36 @@ jobs:
               gcc-aarch64-linux-gnu libc6-dev libfmt-dev libarchive-tools bc flex bison p7zip-full \
               libncurses5-dev lzop python3 zip unzip bsdiff python3-pip
           sudo modprobe f2fs
-
           sudo cp --preserve=all "${{ env.WORK_DIR }}/tools/magiskboot" "/usr/bin/magiskboot" && sudo chmod +x /usr/bin/magiskboot
           sudo cp --preserve=all "${{ env.WORK_DIR }}/tools/avbtool" "/usr/bin/avbtool" && sudo chmod +x /usr/bin/avbtool
-
           for i in eur swa cis; do
               7z x "${{ env.WORK_DIR }}/m52xq/images/$i/Images.zip" -o"${{ env.WORK_DIR }}/m52xq/images/$i/"
           done
-
-#      - name: Build toolchain
-#        run: |
-#          cd "${{ env.WORK_DIR }}"
-#          [[ -d "llvm-project" ]] && rm -rf llvm-project
-#          [[ -d "clang-toolchain" ]] && rm -rf clang-toolchain
-#          mkdir clang-toolchain
-#          git clone --branch llvm-r383902b https://android.googlesource.com/toolchain/llvm-project ./llvm-project
-#          cd llvm-project
-#          mkdir build
-#          cmake -S llvm -B build -G Ninja \
-#              -DLLVM_ENABLE_PROJECTS="clang;lld" \
-#              -DCMAKE_BUILD_TYPE=Release \
-#              -DLLVM_ENABLE_ASSERTIONS=OFF \
-#              -DLLVM_USE_LINKER=lld
-#          ninja -C build -j$(nproc --all)
-#          ninja -C build check-all -j$(nproc --all)
-#          mv "${{ env.WORK_DIR }}/llvm-project/build/*" "${{ env.WORK_DIR }}/clang-toolchain/"
-#          rm -rf llvm-project
 
       - name: Set up prebuilt toolchain
         run: |
           cd "${{ env.WORK_DIR }}"
           [[ -d "clang-toolchain" ]] && rm -rf clang-toolchain
           [[ -d "tmp" ]] && rm -rf tmp
-          mkdir tmp
-          cd tmp
-          git init && git remote add origin https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86
-          git fetch --depth=1 origin refs/heads/llvm-r383902b
-          git checkout FETCH_HEAD -- clang-r383902
-          mv clang-r383902 "${{ env.WORK_DIR }}/clang-toolchain"
-          cd ..
+          git clone --depth=1 --branch android11-qpr3-release https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 ./tmp
+          mv tmp/clang-r383902b1 clang-toolchain
           rm -rf tmp
 
       - name: Clone kernel source
+        env:
+          BUILD_VARIANT: ${{ env.BUILD_VARIANT }}
         run: |
           cd "${{ env.WORK_DIR }}"
           [[ -d "android_kernel_samsung_sm7325" ]] && rm -rf android_kernel_samsung_sm7325
-          git clone --recurse-submodules https://github.com/saadelasfur/android_kernel_samsung_sm7325.git -b ksu-aosp-susfs ./android_kernel_samsung_sm7325
+          if [[ "$BUILD_VARIANT" == "OneUI" ]]; then
+              git clone --recurse-submodules https://github.com/saadelasfur/android_kernel_samsung_sm7325.git -b ksu ./android_kernel_samsung_sm7325
+          elif [[ "$BUILD_VARIANT" == "AOSP" ]]; then
+              git clone --recurse-submodules https://github.com/saadelasfur/android_kernel_samsung_sm7325.git -b ksu-aosp ./android_kernel_samsung_sm7325
+          fi
 
       - name: Build kernel
+        env:
+          BUILD_VARIANT: ${{ env.BUILD_VARIANT }}
         run: |
           cd "${{ env.WORK_DIR }}"
           export TERM=xterm

@@ -2,10 +2,8 @@
 
 Build status:
 
-[![Build (One UI)](https://github.com/saadelasfur/Action-Kernel-Builder/actions/workflows/Build%20(One%20UI).yml/badge.svg)](https://github.com/saadelasfur/Action-Kernel-Builder/actions/workflows/Build%20(One%20UI).yml)
-[![Build (AOSP)](https://github.com/saadelasfur/Action-Kernel-Builder/actions/workflows/Build%20(AOSP).yml/badge.svg)](https://github.com/saadelasfur/Action-Kernel-Builder/actions/workflows/Build%20(AOSP).yml)
-[![Build (One UI & SusFS)](https://github.com/saadelasfur/Action-Kernel-Builder/actions/workflows/Build%20(One%20UI%20&%20SusFS).yml/badge.svg)](https://github.com/saadelasfur/Action-Kernel-Builder/actions/workflows/Build%20(One%20UI%20&%20SusFS).yml)
-[![Build (AOSP & SusFS)](https://github.com/saadelasfur/Action-Kernel-Builder/actions/workflows/Build%20(AOSP%20&%20SusFS).yml/badge.svg)](https://github.com/saadelasfur/Action-Kernel-Builder/actions/workflows/Build%20(AOSP%20&%20SusFS).yml)
+[![Build](https://github.com/saadelasfur/Action-Kernel-Builder/actions/workflows/build.yml/badge.svg)](https://github.com/saadelasfur/Action-Kernel-Builder/actions/workflows/build.yml)
+[![Build (Next)](https://github.com/saadelasfur/Action-Kernel-Builder/actions/workflows/build_next.yml/badge.svg)](https://github.com/saadelasfur/Action-Kernel-Builder/actions/workflows/build_next.yml)
 
 ## Notice  
 
