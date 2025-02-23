@@ -91,7 +91,7 @@ jobs:
         run: |
           cd "${{ env.WORK_DIR }}"
           export TERM=xterm
-          chmod +x build.sh && source ./build_m52xq.sh --clean
+          chmod +x build_m52xq.sh && source ./build_m52xq.sh --clean
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
