@@ -23,7 +23,7 @@ jobs:
           DATE="$(date +%Y%m%d)"
           WORK_DIR="$(git rev-parse --show-toplevel)"
           OUT_DIR="$WORK_DIR/builds"
-          KSU_VER="v1.0.4"
+          KSU_VER="v1.0.5"
           BUILD_VARIANT="${{ matrix.variant }}"
           RELEASE_VERSION="KSU-Next_$KSU_VER-$DATE"
 
