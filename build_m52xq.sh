@@ -114,12 +114,32 @@ REGEN_DEFCONFIG()
     cd "$WORK_DIR"
 }
 
+BUILD_MODULES()
+{
+    cd "$SRC_DIR"
+    echo "----------------------------------------------"
+    echo "Building kernel modules..."
+    echo ""
+    make $MAKE_ARGS INSTALL_MOD_PATH=modules INSTALL_MOD_STRIP=1 modules_install
+    echo ""
+    mkdir -p "$OUT_DIR/out/zip/vendor/bin"
+    cp "$WORK_DIR/target/common/modprobe/vendor_modprobe.sh" "$OUT_DIR/out/zip/vendor/bin/vendor_modprobe.sh"
+    mkdir -p "$OUT_DIR/out/zip/vendor/lib/modules"
+    find "$SRC_DIR/out/modules" -name "*.ko" -exec cp "{}" "$OUT_DIR/out/zip/vendor/lib/modules" ";"
+    cp "$SRC_DIR/out/modules/lib/modules/5.4*/modules."{alias,dep,softdep} "$OUT_DIR/out/zip/vendor/lib/modules"
+    cp "$SRC_DIR/out/modules/lib/modules/5.4*/modules.order" "$OUT_DIR/out/zip/vendor/lib/modules/modules.load"
+    sed -i "s/\(kernel\/[^: ]*\/\)\([^: ]*\.ko\)/\/vendor\/lib\/modules\/\2/g" "$OUT_DIR/out/zip/vendor/lib/modules/modules.dep"
+    sed -i "s/.*\///g" "$OUT_DIR/out/zip/vendor/lib/modules/modules.load"
+    rm -rf "$SRC_DIR/out/modules"
+    cd "$WORK_DIR"
+}
+
 PACK_BOOT_IMG()
 {
     echo "----------------------------------------------"
     echo "Packing \"$BUILD_VARIANT\" boot.img..."
     rm -rf "$OUT_DIR/tmp"
-    mkdir "$OUT_DIR/tmp"
+    mkdir -p "$OUT_DIR/tmp"
     # Copy and unpack stock boot.img
     cp "$WORK_DIR/target/m52xq/images/$IMG_FOLDER/boot.img" "$OUT_DIR/tmp/boot.img"
     cd "$OUT_DIR/tmp"
@@ -142,6 +162,35 @@ PACK_BOOT_IMG()
     cd "$WORK_DIR"
 }
 
+PACK_BOOT_IMG_PATCH()
+{
+    echo "----------------------------------------------"
+    echo "Packing \"$BUILD_VARIANT\" boot.img.p..."
+    rm -rf "$OUT_DIR/tmp"
+    mkdir -p "$OUT_DIR/tmp"
+    # Copy and unpack stock boot.img
+    cp "$WORK_DIR/target/m52xq/images/$IMG_FOLDER/boot.img" "$OUT_DIR/tmp/boot.img"
+    cd "$OUT_DIR/tmp"
+    avbtool erase_footer --image boot.img
+    magiskboot unpack -h boot.img
+    # Replace stock kernel image
+    rm -f "$OUT_DIR/tmp/kernel"
+    cp "$SRC_DIR/out/arch/arm64/boot/Image" "$OUT_DIR/tmp/kernel"
+    # SELinux permissive
+    #cmdline="$(head -n 1 header)"
+    #cmdline="$cmdline androidboot.selinux=permissive"
+    #sed '1 c\"$cmdline"' header > header_new
+    #rm -f header
+    #mv header_new header
+    # Repack and copy in out folder
+    magiskboot repack boot.img boot_new.img
+    bsdiff "$OUT_DIR/out/zip/mesa/eur/boot.img" "$OUT_DIR/tmp/boot_new.img" "$OUT_DIR/out/zip/mesa/$IMG_FOLDER/boot.img.p"
+    [[ ! -f "$OUT_DIR/out/zip/mesa/bspatch" ]] && cp "$WORK_DIR/target/common/bspatch/bspatch" "$OUT_DIR/out/zip/mesa/bspatch"
+    # Clean :3
+    rm -rf "$OUT_DIR/tmp"
+    cd "$WORK_DIR"
+}
+
 PACK_DTBO_IMG()
 {
     echo "----------------------------------------------"
@@ -156,7 +205,7 @@ PACK_VENDOR_BOOT_IMG()
     echo "----------------------------------------------"
     echo "Packing \"$BUILD_VARIANT\" vendor_boot.img..."
     rm -rf "$OUT_DIR/tmp"
-    mkdir "$OUT_DIR/tmp"
+    mkdir -p "$OUT_DIR/tmp"
     # Copy and unpack stock vendor_boot.img
     cp "$WORK_DIR/target/m52xq/images/$IMG_FOLDER/vendor_boot.img" "$OUT_DIR/tmp/vendor_boot.img"
     cd "$OUT_DIR/tmp"

@@ -7,3 +7,5 @@ target/a52sxq/images/kor/Images.zip binary
 
 tools/avbtool binary
 tools/magiskboot binary
+
+target/common/bspatch/bspatch binary
