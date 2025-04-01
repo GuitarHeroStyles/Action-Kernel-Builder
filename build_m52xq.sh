@@ -86,7 +86,7 @@ BUILD_KERNEL()
     echo "----------------------------------------------"
     [[ -d "$SRC_DIR/out" ]] && echo "Starting \"$BUILD_VARIANT\" kernel build... (DIRTY)" || echo "Starting \"$BUILD_VARIANT\" kernel build..."
     echo ""
-    export LOCALVERSION="-nova-$KSU_VER-$VARIANT"
+    export LOCALVERSION="-shadow-$KSU_VER-$VARIANT"
     mkdir -p "$SRC_DIR/out"
     rm -rf "$SRC_DIR/out/arch/arm64/boot/dts/samsung"
     make $MAKE_ARGS CC="ccache clang" vendor/$DEFCONFIG
