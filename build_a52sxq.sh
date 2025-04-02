@@ -86,7 +86,7 @@ BUILD_KERNEL()
     echo "----------------------------------------------"
     [[ -d "$SRC_DIR/out" ]] && echo "Starting \"$BUILD_VARIANT\" kernel build... (DIRTY)" || echo "Starting \"$BUILD_VARIANT\" kernel build..."
     echo ""
-    export LOCALVERSION="-shadow-$KSU_VER-$VARIANT"
+    export LOCALVERSION="-shadow-$KSU_VER-$DATE-a52sxq"
     mkdir -p "$SRC_DIR/out"
     rm -rf "$SRC_DIR/out/arch/arm64/boot/dts/samsung"
     make $MAKE_ARGS CC="ccache clang" vendor/$DEFCONFIG
@@ -141,7 +141,7 @@ PACK_BOOT_IMG()
     rm -rf "$OUT_DIR/tmp"
     mkdir -p "$OUT_DIR/tmp"
     # Copy and unpack stock boot.img
-    cp "$WORK_DIR/target/a52sxq/images/$IMG_FOLDER/boot.img" "$OUT_DIR/tmp/boot.img"
+    cp "$WORK_DIR/target/a52sxq/images/boot.img" "$OUT_DIR/tmp/boot.img"
     cd "$OUT_DIR/tmp"
     avbtool erase_footer --image boot.img
     magiskboot unpack -h boot.img
@@ -156,36 +156,7 @@ PACK_BOOT_IMG()
     #mv header_new header
     # Repack and copy in out folder
     magiskboot repack boot.img boot_new.img
-    mv "$OUT_DIR/tmp/boot_new.img" "$OUT_DIR/out/zip/mesa/$IMG_FOLDER/boot.img"
-    # Clean :3
-    rm -rf "$OUT_DIR/tmp"
-    cd "$WORK_DIR"
-}
-
-PACK_BOOT_IMG_PATCH()
-{
-    echo "----------------------------------------------"
-    echo "Packing \"$BUILD_VARIANT\" boot.img.p..."
-    rm -rf "$OUT_DIR/tmp"
-    mkdir -p "$OUT_DIR/tmp"
-    # Copy and unpack stock boot.img
-    cp "$WORK_DIR/target/a52sxq/images/$IMG_FOLDER/boot.img" "$OUT_DIR/tmp/boot.img"
-    cd "$OUT_DIR/tmp"
-    avbtool erase_footer --image boot.img
-    magiskboot unpack -h boot.img
-    # Replace stock kernel image
-    rm -f "$OUT_DIR/tmp/kernel"
-    cp "$SRC_DIR/out/arch/arm64/boot/Image" "$OUT_DIR/tmp/kernel"
-    # SELinux permissive
-    #cmdline="$(head -n 1 header)"
-    #cmdline="$cmdline androidboot.selinux=permissive"
-    #sed '1 c\"$cmdline"' header > header_new
-    #rm -f header
-    #mv header_new header
-    # Repack and copy in out folder
-    magiskboot repack boot.img boot_new.img
-    bsdiff "$OUT_DIR/out/zip/mesa/eur/boot.img" "$OUT_DIR/tmp/boot_new.img" "$OUT_DIR/out/zip/mesa/$IMG_FOLDER/boot.img.p"
-    [[ ! -f "$OUT_DIR/out/zip/mesa/bspatch" ]] && cp "$WORK_DIR/target/common/bspatch/bspatch" "$OUT_DIR/out/zip/mesa/bspatch"
+    mv "$OUT_DIR/tmp/boot_new.img" "$OUT_DIR/out/zip/mesa/boot.img"
     # Clean :3
     rm -rf "$OUT_DIR/tmp"
     cd "$WORK_DIR"
@@ -196,8 +167,8 @@ PACK_DTBO_IMG()
     echo "----------------------------------------------"
     echo "Packing \"$BUILD_VARIANT\" dtbo.img..."
     # Uncomment this to use firmware extracted dtbo
-    #cp "$WORK_DIR/target/a52sxq/images/$IMG_FOLDER/dtbo.img" "$OUT_DIR/out/zip/mesa/$IMG_FOLDER/dtbo.img"
-    cp "$SRC_DIR/out/arch/arm64/boot/dtbo.img" "$OUT_DIR/out/zip/mesa/$IMG_FOLDER/dtbo.img"
+    #cp "$WORK_DIR/target/a52sxq/images/dtbo.img" "$OUT_DIR/out/zip/mesa/dtbo.img"
+    cp "$SRC_DIR/out/arch/arm64/boot/dtbo.img" "$OUT_DIR/out/zip/mesa/dtbo.img"
 }
 
 PACK_VENDOR_BOOT_IMG()
@@ -207,7 +178,7 @@ PACK_VENDOR_BOOT_IMG()
     rm -rf "$OUT_DIR/tmp"
     mkdir -p "$OUT_DIR/tmp"
     # Copy and unpack stock vendor_boot.img
-    cp "$WORK_DIR/target/a52sxq/images/$IMG_FOLDER/vendor_boot.img" "$OUT_DIR/tmp/vendor_boot.img"
+    cp "$WORK_DIR/target/a52sxq/images/vendor_boot.img" "$OUT_DIR/tmp/vendor_boot.img"
     cd "$OUT_DIR/tmp"
     avbtool erase_footer --image vendor_boot.img
     magiskboot unpack -h vendor_boot.img
@@ -241,7 +212,7 @@ PACK_VENDOR_BOOT_IMG()
     #mv header_new header
     # Repack and copy in out folder
     magiskboot repack vendor_boot.img vendor_boot_new.img
-    mv "$OUT_DIR/tmp/vendor_boot_new.img" "$OUT_DIR/out/zip/mesa/$IMG_FOLDER/vendor_boot.img"
+    mv "$OUT_DIR/tmp/vendor_boot_new.img" "$OUT_DIR/out/zip/mesa/vendor_boot.img"
     # Clean :3
     rm -rf "$OUT_DIR/tmp"
     cd "$WORK_DIR"
@@ -249,10 +220,11 @@ PACK_VENDOR_BOOT_IMG()
 
 MAKE_INSTALLER()
 {
-    cp -r "$WORK_DIR/target/a52sxq/template/META-INF" "$OUT_DIR/out/zip/META-INF"
-    [[ "$NEXT_BUILD" == "true" ]] && sed -i \
-        "s|KernelSU|KernelSU-Next|g" \
-        "$OUT_DIR/out/zip/META-INF/com/google/android/update-binary"
+    if [[ "$NEXT_BUILD" == "true" ]]; then
+        cp -r "$WORK_DIR/target/a52sxq/template/ksu-next/META-INF" "$OUT_DIR/out/zip/META-INF"
+    else
+        cp -r "$WORK_DIR/target/a52sxq/template/ksu/META-INF" "$OUT_DIR/out/zip/META-INF"
+    fi
     sed -i \
         -e "s|ksu_version|$KSU_VER|g" \
         -e "s|build_var|$BUILD_VARIANT|g" \
@@ -260,8 +232,12 @@ MAKE_INSTALLER()
         -e "s|build_fp|$BUILD_FP|g" \
         "$OUT_DIR/out/zip/META-INF/com/google/android/update-binary"
     cd "$OUT_DIR/out/zip"
-    find . -exec touch -a -c -m -t 200901010000.00 {} \;
-    7z a -tzip -mx=5 "${RELEASE_VERSION}_a52sxq_${BUILD_VARIANT}.zip" mesa META-INF
+    find . -exec env TZ=UTC touch -a -c -m -t 200901010000.00 {} \;
+    if [[ -d "vendor" ]]; then
+        7z a -tzip -mx=5 "${RELEASE_VERSION}_a52sxq_${BUILD_VARIANT}.zip" mesa META-INF vendor
+    else
+        7z a -tzip -mx=5 "${RELEASE_VERSION}_a52sxq_${BUILD_VARIANT}.zip" mesa META-INF
+    fi
     mv "${RELEASE_VERSION}_a52sxq_${BUILD_VARIANT}.zip" "$OUT_DIR/${RELEASE_VERSION}_a52sxq_${BUILD_VARIANT}.zip"
 }
 # ]
@@ -272,9 +248,7 @@ rm -rf "$OUT_DIR/out"
 
 mkdir -p "$OUT_DIR"
 mkdir -p "$OUT_DIR/out"
-mkdir -p "$OUT_DIR/out/zip/mesa/eur"
-mkdir -p "$OUT_DIR/out/zip/mesa/kor"
-mkdir -p "$OUT_DIR/out/zip/mesa/chn"
+mkdir -p "$OUT_DIR/out/zip/mesa"
 
 # Detect branch
 DETECT_BRANCH
@@ -286,31 +260,10 @@ DETECT_BRANCH
 [[ "$BUILD_VARIANT" == "OneUI" ]] && CUSTOM_FSTAB="true"
 
 # a52sxqxx
-IMG_FOLDER="eur"
-VARIANT="a52sxqxx"
 DEFCONFIG="a52sxq_eur_open_defconfig"
 RP_REV="SRPUE26A001"
 BUILD_KERNEL
-PACK_BOOT_IMG
-PACK_DTBO_IMG
-PACK_VENDOR_BOOT_IMG
-
-# a52sxqks
-IMG_FOLDER="kor"
-VARIANT="a52sxqks"
-DEFCONFIG="a52sxq_kor_single_defconfig"
-RP_REV="SRPUF22A001"
-BUILD_KERNEL
-PACK_BOOT_IMG
-PACK_DTBO_IMG
-PACK_VENDOR_BOOT_IMG
-
-# a52sxqzt
-IMG_FOLDER="chn"
-VARIANT="a52sxqzt"
-DEFCONFIG="a52sxq_chn_tw_defconfig"
-RP_REV="SRPUE26A001"
-BUILD_KERNEL
+[[ "$NEXT_BUILD" != "true" ]] && BUILD_MODULES
 PACK_BOOT_IMG
 PACK_DTBO_IMG
 PACK_VENDOR_BOOT_IMG
@@ -319,8 +272,6 @@ PACK_VENDOR_BOOT_IMG
 MAKE_INSTALLER
 
 rm -rf "$OUT_DIR/out"
-for i in eur kor chn; do
-    rm -f "$WORK_DIR/target/a52sxq/images/$i/*.img"
-done
+rm -f "$WORK_DIR/target/a52sxq/images/*.img"
 
 echo "----------------------------------------------"

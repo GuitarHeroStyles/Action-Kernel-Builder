@@ -1,11 +1,5 @@
-target/m52xq/images/cis/Images.zip binary
-target/m52xq/images/eur/Images.zip binary
-target/m52xq/images/swa/Images.zip binary
-target/a52sxq/images/chn/Images.zip binary
-target/a52sxq/images/eur/Images.zip binary
-target/a52sxq/images/kor/Images.zip binary
+target/m52xq/images/Images.zip binary
+target/a52sxq/images/Images.zip binary
 
 tools/avbtool binary
 tools/magiskboot binary
-
-target/common/bspatch/bspatch binary

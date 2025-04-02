@@ -60,9 +60,7 @@ jobs:
           sudo modprobe f2fs
           sudo cp --preserve=all "${{ env.WORK_DIR }}/tools/magiskboot" "/usr/bin/magiskboot" && sudo chmod +x /usr/bin/magiskboot
           sudo cp --preserve=all "${{ env.WORK_DIR }}/tools/avbtool" "/usr/bin/avbtool" && sudo chmod +x /usr/bin/avbtool
-          for i in eur kor chn; do
-              7z x "${{ env.WORK_DIR }}/target/a52sxq/images/$i/Images.zip" -o"${{ env.WORK_DIR }}/target/a52sxq/images/$i/"
-          done
+          7z x "${{ env.WORK_DIR }}/target/a52sxq/images/Images.zip" -o"${{ env.WORK_DIR }}/target/a52sxq/images/"
 
       - name: Set up prebuilt toolchain
         run: |
@@ -80,9 +78,9 @@ jobs:
           cd "${{ env.WORK_DIR }}"
           [[ -d "android_kernel_samsung_sm7325" ]] && rm -rf android_kernel_samsung_sm7325
           if [[ "$BUILD_VARIANT" == "OneUI" ]]; then
-              git clone --recurse-submodules https://github.com/saadelasfur/android_kernel_samsung_sm7325.git -b ksu-next ./android_kernel_samsung_sm7325
+              git clone --depth=1 --recurse-submodules https://github.com/saadelasfur/android_kernel_samsung_sm7325.git -b ksu-next ./android_kernel_samsung_sm7325
           elif [[ "$BUILD_VARIANT" == "AOSP" ]]; then
-              git clone --recurse-submodules https://github.com/saadelasfur/android_kernel_samsung_sm7325.git -b ksu-aosp-next ./android_kernel_samsung_sm7325
+              git clone --depth=1 --recurse-submodules https://github.com/saadelasfur/android_kernel_samsung_sm7325.git -b ksu-aosp-next ./android_kernel_samsung_sm7325
           fi
 
       - name: Build kernel
