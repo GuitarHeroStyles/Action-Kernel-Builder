@@ -94,6 +94,6 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.RELEASE_VERSION }}_${{ env.BUILD_VARIANT }}
+          name: ${{ env.RELEASE_VERSION }}_${{ env.BUILD_VARIANT }}_a52sxq
           path: ${{ env.OUT_DIR }}/${{ env.RELEASE_VERSION }}_a52sxq_${{ env.BUILD_VARIANT }}.zip
           compression-level: 0
