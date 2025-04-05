@@ -31,7 +31,7 @@ JOBS="$(nproc --all)"
 
 [[ "$2" == "-n" || "$2" == "--next" ]] && NEXT_BUILD="true"
 KSU_VER="v1.0.3"
-[[ "$NEXT_BUILD" == "true" ]] && KSU_VER="v1.0.5"
+[[ "$NEXT_BUILD" == "true" ]] && KSU_VER="v1.0.6"
 RELEASE_VERSION="KSU_$KSU_VER-$DATE"
 [[ "$NEXT_BUILD" == "true" ]] && RELEASE_VERSION="KSU-Next_$KSU_VER-$DATE"
 
