@@ -97,7 +97,7 @@ write_raw_image() { dd if="$1" of="$2"; }
 ui_print " ";
 ui_print "********************************************";
 ui_print "KernelSU ksu_version for Galaxy M52 5G (build_var)";
-ui_print "by saadelasfur @telegram";
+ui_print "by saadelasfur @XDAforums";
 ui_print "HUGE Thanks to BlackMesa123 & RisenID";
 ui_print "********************************************";
 ui_print "Build date: build_date";
