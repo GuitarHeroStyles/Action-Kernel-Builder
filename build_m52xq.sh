@@ -193,16 +193,16 @@ PACK_VENDOR_BOOT_IMG()
     # Replace stock fstab
     if [[ "$CUSTOM_FSTAB" == "true" ]]; then
         mkdir ramdisk
-        cd ramdisk
-        cpio -idm < "../ramdisk.cpio" && rm "../ramdisk.cpio"
+        cpio -idm < "ramdisk.cpio" -D ramdisk && rm "ramdisk.cpio"
         rm -f "$OUT_DIR/tmp/ramdisk/first_stage_ramdisk/fstab.qcom"
         cp "$WORK_DIR/target/common/fstab/fstab.qcom" "$OUT_DIR/tmp/ramdisk/first_stage_ramdisk/fstab.qcom"
-        sudo chown -R root:root .
-        find . -type d -exec chmod 755 {} \;
-        find . -type f -exec chmod 644 {} \;
-        sudo find . -exec setfattr -n security.selinux -v "u:object_r:rootfs:s0" {} \;
-        find . -print0 | cpio --null -o -H newc --owner root:root > "../ramdisk.cpio"
-        cd ..
+        sudo bash -c "
+            chown -R root:root \"ramdisk\"
+            find \"ramdisk\" -type d -exec chmod 755 {} \;
+            find \"ramdisk\" -type f -exec chmod 644 {} \;
+            find \"ramdisk\" -exec setfattr -n security.selinux -v \"u:object_r:rootfs:s0\" {} \;
+        "
+        find "ramdisk" -print0 | sudo cpio --null -o -H newc --owner root:root > "ramdisk.cpio"
         sudo rm -rf ramdisk
     fi
     # SELinux permissive
